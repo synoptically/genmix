@@ -177,6 +177,9 @@ impl Window {
             glib::Propagation::Proceed
         });
 
+        if this.settings.borrow().dark_mode {
+            super::apply_dark_mode(true);
+        }
         this.backend.start();
         this.window.present();
         this
@@ -187,6 +190,7 @@ impl Window {
             // Peak events are by far the most common, so they return early.
             Event::Peak { meter, level } => return self.show_peak(meter, level),
             Event::PreviewLatency(usec) => return self.show_latency(usec),
+            Event::Loaded | Event::Done { .. } => return,
             Event::Connected => self.reconnecting.set_reveal_child(false),
             Event::Disconnected => {
                 self.reconnecting.set_reveal_child(true);

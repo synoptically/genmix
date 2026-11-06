@@ -69,6 +69,8 @@ pub fn show(parent: &gtk::ApplicationWindow, settings: &Rc<RefCell<Settings>>, c
     flag_row("Show level meters", |s| &mut s.show_meters);
     flag_row("Show details panels", |s| &mut s.show_details);
     flag_row("Skip speaker feedback warning", |s| &mut s.skip_speaker_warning);
+    flag_row("Dark mode", |s| &mut s.dark_mode)
+        .connect_active_notify(|switch| super::apply_dark_mode(switch.is_active()));
 
     window.set_child(Some(&root));
     window.present();

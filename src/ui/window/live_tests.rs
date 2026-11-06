@@ -310,6 +310,42 @@ fn volume_round_trip(win: &Window, sink: &NullSink) {
     wait_for("range to shrink back", || row.control.shown().1 == 100.0);
 }
 
+/// Text turns light in dark mode. Off must bring back what the system chose.
+fn dark_mode_recolors_and_restores(win: &Window) {
+    let before = win.window.color();
+    for _ in 0..2 {
+        crate::ui::apply_dark_mode(true);
+        wait_for("dark colors", || win.window.color().red() > 0.7);
+        crate::ui::apply_dark_mode(false);
+        wait_for("system colors", || win.window.color() == before);
+    }
+}
+
+fn cli_commands(sink: &NullSink) {
+    let run = |line: &str| {
+        let args: Vec<String> = line.split(' ').map(String::from).collect();
+        crate::cli::run(&args) == glib::ExitCode::SUCCESS
+    };
+    let name = sink.name;
+    assert!(run(&format!("volume output {name} 40")));
+    assert!(sink.volume().contains("40%"));
+    assert!(run(&format!("volume output {name} +5")));
+    assert!(sink.volume().contains("45%"));
+    assert!(run(&format!("volume output {name} 400")));
+    assert!(sink.volume().contains("100%"), "the limit applies");
+    assert!(run(&format!("mute output {name} on")));
+    assert!(pactl(&["get-sink-mute", name]).contains("yes"));
+    assert!(run(&format!("mute output {name} toggle")));
+    assert!(pactl(&["get-sink-mute", name]).contains("no"));
+    assert!(run("default output default"), "setting the same default gets a reply");
+    assert!(run("list"));
+    assert!(!run("volume output genmix_no_such_sink 40"));
+    let card = pactl(&["list", "short", "cards"]);
+    let card = card.split('\t').next().expect("a card");
+    assert!(!run(&format!("profile {card} genmix-no-such-profile")));
+    pactl(&["set-sink-volume", name, "40%"]);
+}
+
 /// Passive meters on suspended devices cannot close. They must not pile up either.
 fn meters_do_not_pile_up(win: &Window) {
     let meters = || pactl(&["list", "source-outputs"]).matches("Peak detect").count();
@@ -610,6 +646,7 @@ fn live_window() {
     balance_survives_zero();
     channel_labels_follow_the_map();
     card_keeps_the_users_expander_state(&win);
+    dark_mode_recolors_and_restores(&win);
 
     let speaker = NullSink::load("genmix_test_speaker", "");
     let mut phones = NullSink::load("genmix_test_phones", " device.form_factor=headset");
@@ -622,6 +659,7 @@ fn live_window() {
     });
 
     volume_round_trip(&win, &speaker);
+    cli_commands(&speaker);
     meters_do_not_pile_up(&win);
     dead_meter_reopens(&win);
     command_errors(&win);

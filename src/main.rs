@@ -1,6 +1,7 @@
 //! GenMix: control every device and stream on PipeWire or PulseAudio.
 
 mod backend;
+mod cli;
 mod settings;
 mod ui;
 
@@ -16,6 +17,11 @@ scale.overamp trough highlight { background: @warning_color; border-color: @warn
 ";
 
 fn main() -> gtk::glib::ExitCode {
+    // Lossy, because `args()` panics on a non-UTF-8 argument.
+    let args: Vec<String> = std::env::args_os().skip(1).map(|a| a.to_string_lossy().into_owned()).collect();
+    if !args.is_empty() {
+        return cli::run(&args);
+    }
     let app = gtk::Application::builder().application_id(APP_ID).build();
     app.connect_startup(|_| {
         let css = gtk::CssProvider::new();

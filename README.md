@@ -40,8 +40,42 @@ The icon name is `multimedia-volume-control`, which common icon themes provide.
 The tabs are Playback, Recording, Output Devices, Input Devices and Configuration.
 The gear button opens the settings, stored in `$XDG_CONFIG_HOME/genmix/settings.toml`.
 
-The app uses your GTK theme and color scheme. To force one, run for example
-`GTK_THEME=Adwaita:dark genmix`.
+The app uses your GTK theme and color scheme. "Dark mode" in the settings asks the
+theme for its dark colors. When it is off, the system decides. `GTK_THEME`, for example
+`GTK_THEME=Adwaita:dark genmix`, overrides both.
+
+### Command line
+
+With any argument GenMix runs one command and exits. It needs no display.
+
+```sh
+genmix list                                # everything, as tab-separated rows
+genmix list output                         # also input, playback, recording, card, port, profile
+genmix volume output default 50            # set to 50%
+genmix volume output default +5            # or -5
+genmix volume playback firefox 30          # streams match by app name or index
+genmix mute input default toggle           # or on, off
+genmix default output alsa_output.usb-x    # set the default output or input
+genmix port output default analog-output-headphones
+genmix move playback 42 alsa_output.usb-x  # move a stream to another device
+genmix profile bluez_card.x a2dp-sink      # set a card's profile
+```
+
+Targets are an index or a name from `genmix list`, and outputs and inputs also accept
+`default`. Run `genmix help` for the full syntax. Errors go to stderr, with exit code 1.
+
+The rows are:
+
+```
+output|input      index  name  volume  muted|-  default|-  description
+port              output|input  device-index  name  active|-  unplugged|-  description
+playback|recording  index  app  volume  muted|-  device-index  title
+card              index  name  active-profile  description
+profile           card-index  name  active|-  unavailable|-  description
+```
+
+`volume` follows the same limit as the sliders, from the settings file. It keeps the
+balance between channels. Live preview, level meters and settings are in the window only.
 
 ### Volume above 100%
 
@@ -106,6 +140,7 @@ and rebuilds the lists.
 ```
 src/backend/   libpulse: connection, events, commands, meters, preview. No GTK widgets.
 src/ui/        GTK rows and the main window, which turns backend events into row updates.
+src/cli.rs     Command line: parses one command and runs it on the backend.
 src/settings.rs
 ```
 

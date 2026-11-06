@@ -22,6 +22,8 @@ pub enum Target {
 #[derive(Debug)]
 pub enum Event {
     Connected,
+    /// The first full set of objects after `Connected` has arrived.
+    Loaded,
     /// Connection lost or not yet made. A retry is already scheduled.
     Disconnected,
     Server { default_sink: String, default_source: String },
@@ -42,4 +44,6 @@ pub enum Event {
     /// Total measured delay, or `None` until the server has reported timing.
     PreviewLatency(Option<u64>),
     Error(String),
+    /// A command got its reply. A failure sends `Error` first, unless the target is gone.
+    Done { ok: bool },
 }

@@ -8,9 +8,34 @@ mod stream_row;
 mod volume_slider;
 pub mod window;
 
+pub use volume_slider::slider_upper;
+
+use gtk::glib;
 use gtk::prelude::*;
 
 const SPACING: i32 = 6;
+const PREFER_DARK: &str = "gtk-application-prefer-dark-theme";
+const COLOR_SCHEME: &str = "gtk-interface-color-scheme";
+
+/// Needs both properties. A theme's `gtk-dark.css` follows only prefer-dark. On GTK 4.20
+/// the built-in theme stays dark after prefer-dark goes off, unless the color scheme,
+/// which older GTK lacks, was set too. Off hands the choice back to the system.
+pub fn apply_dark_mode(dark: bool) {
+    let Some(settings) = gtk::Settings::default() else { return };
+    let scheme = settings.find_property(COLOR_SCHEME);
+    if dark {
+        let value = scheme.and_then(|p| glib::EnumClass::with_type(p.value_type())?.to_value_by_nick("dark"));
+        if let Some(value) = value {
+            settings.set_property_from_value(COLOR_SCHEME, &value);
+        }
+        settings.set_gtk_application_prefer_dark_theme(true);
+    } else {
+        settings.reset_property(PREFER_DARK);
+        if scheme.is_some() {
+            settings.reset_property(COLOR_SCHEME);
+        }
+    }
+}
 
 fn row_with(child: &impl IsA<gtk::Widget>) -> gtk::ListBoxRow {
     let row = gtk::ListBoxRow::builder().activatable(false).selectable(false).child(child).build();

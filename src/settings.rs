@@ -20,6 +20,7 @@ pub struct Settings {
     pub show_meters: bool,
     pub show_details: bool,
     pub skip_speaker_warning: bool,
+    pub dark_mode: bool,
 }
 
 impl Default for Settings {
@@ -32,6 +33,7 @@ impl Default for Settings {
             show_meters: true,
             show_details: true,
             skip_speaker_warning: false,
+            dark_mode: false,
         }
     }
 }
@@ -67,6 +69,7 @@ impl Settings {
             show_meters: flag("show_meters", d.show_meters),
             show_details: flag("show_details", d.show_details),
             skip_speaker_warning: flag("skip_speaker_warning", d.skip_speaker_warning),
+            dark_mode: flag("dark_mode", d.dark_mode),
         }
     }
 
@@ -79,6 +82,7 @@ impl Settings {
         file.set_boolean(GROUP, "show_meters", self.show_meters);
         file.set_boolean(GROUP, "show_details", self.show_details);
         file.set_boolean(GROUP, "skip_speaker_warning", self.skip_speaker_warning);
+        file.set_boolean(GROUP, "dark_mode", self.dark_mode);
         if let Some(dir) = path.parent() {
             std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
         }
@@ -108,7 +112,7 @@ mod tests {
     #[test]
     fn round_trip() {
         let path = temp_file("round");
-        let s = Settings { allow_overamp: true, max_percent: 175, ..Settings::default() };
+        let s = Settings { allow_overamp: true, max_percent: 175, dark_mode: true, ..Settings::default() };
         s.save_to(&path).unwrap();
         assert_eq!(Settings::load_from(&path), s);
         remove(path);

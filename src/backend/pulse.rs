@@ -272,6 +272,7 @@ impl Inner {
                 }
                 inner.fetch(target);
             }
+            (inner.emit)(Event::Done { ok });
         }))
     }
 
@@ -362,6 +363,9 @@ impl Inner {
             drop(intro.get_source_info_list(self.source_handler()));
             drop(intro.get_sink_input_info_list(self.sink_input_handler()));
             drop(intro.get_source_output_info_list(self.source_output_handler()));
+            // The server answers these in order, so this reply follows all the lists.
+            let inner = Rc::clone(self);
+            drop(intro.get_server_info(move |_| (inner.emit)(Event::Loaded)));
         });
     }
 
