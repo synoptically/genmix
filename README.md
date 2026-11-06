@@ -19,19 +19,17 @@ GTK 4.12 or newer, and libpulse 14 or newer.
 | Debian, Ubuntu | `sudo apt install build-essential pkg-config libgtk-4-dev libpulse-dev` |
 | Gentoo | `emerge gui-libs/gtk media-libs/libpulse` |
 
-Build and run:
+Build, install and run:
 
 ```sh
-cargo build --release
-./target/release/genmix
+make             # builds into bin/genmix
+make install     # copies it to ~/.local/bin and adds the launcher entry
+genmix
 ```
 
-To add it to your launcher:
-
-```sh
-install -Dm755 target/release/genmix ~/.local/bin/genmix
-install -Dm644 data/org.genmix.GenMix.desktop ~/.local/share/applications/org.genmix.GenMix.desktop
-```
+`make` alone only fills `bin/`, so `genmix` is not on your PATH until you install it.
+`~/.local/bin` must be in your PATH. To install somewhere else, for example system
+wide, run `sudo make install PREFIX=/usr/local`. `make uninstall` removes both files.
 
 The icon name is `multimedia-volume-control`, which common icon themes provide.
 
@@ -150,7 +148,7 @@ Everything runs on one thread. libpulse uses the GLib main loop through
 ## Tests
 
 ```sh
-cargo test                                 # no audio server needed
+make test                                  # no audio server needed
 cargo test -- --ignored --nocapture        # needs an audio server and a display
 GENMIX_TEST_BLUETOOTH=1 cargo test -- --ignored --nocapture
 ```
