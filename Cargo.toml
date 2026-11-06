@@ -1,0 +1,15 @@
+[package]
+name = "genmix"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.92"
+description = "Audio mixer for PipeWire and PulseAudio"
+license = "MIT"
+
+[dependencies]
+gtk = { package = "gtk4", version = "=0.11.5", features = ["v4_12"] }
+libpulse-binding = { version = "=2.30.1", default-features = false, features = ["pa_v14"] }
+libpulse-glib-binding = { version = "=2.29.0", default-features = false, features = ["pa_v14"] }
+
+[profile.release]
+lto = "thin"

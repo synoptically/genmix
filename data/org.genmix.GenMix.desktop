@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=GenMix
+GenericName=Audio Mixer
+Comment=Control every audio device and stream on PipeWire or PulseAudio
+Exec=genmix
+Icon=multimedia-volume-control
+Terminal=false
+Categories=AudioVideo;Audio;Mixer;GTK;
+Keywords=volume;sound;bluetooth;microphone;pulseaudio;pipewire;
+StartupNotify=true
