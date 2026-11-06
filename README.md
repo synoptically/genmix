@@ -75,41 +75,36 @@ profile           card-index  name  active|-  unavailable|-  description
 `volume` follows the same limit as the sliders, from the settings file. It keeps the
 balance between channels. Live preview, level meters and settings are in the window only.
 
-### Volume above 100%
+## Volume boost, Bluetooth codecs and live mic preview
 
-This is off by default. Sliders then stop at 100%, except that a device already above
-100% keeps its real value and its slider extends to show it. Turn on "Allow volume above
-100%" in the settings to raise the limit, up to 200%.
+**How do I raise Linux volume above 100% on PipeWire or PulseAudio?**
+Turn on "Allow volume above 100%" in the settings. Sliders then go up to 200%. It is off
+by default: sliders stop at 100%, except a device already above 100% keeps its real
+value and its slider extends to show it.
 
-### Bluetooth codecs
+**How do I see which Bluetooth codec (AAC, LDAC, aptX, SBC, mSBC) is in use?**
+GenMix labels each Bluetooth profile with its codec and shows the active codec on the
+card row. PipeWire names the best codec with the plain profile name, so `a2dp-sink` may
+mean AAC and `headset-head-unit` may mean mSBC. GenMix reads the codec from the profile
+description, then the profile name, then the sink's `api.bluez5.codec` property. Which
+codecs appear depends on the headset and on how PipeWire was built. AAC, LDAC and aptX
+each need an optional library, and some distros package them separately. If a codec is
+missing, check your PipeWire package first, because GenMix can only list what the server
+offers.
 
-PipeWire shows each codec as a profile. The best codec gets the plain name, so
-`a2dp-sink` may mean AAC and `headset-head-unit` may mean mSBC. GenMix reads the codec
-from the profile description, then from the profile name, then from the sink's
-`api.bluez5.codec` property.
+**How do I hear my microphone through my headphones?**
+Press the headphone button on an input device. Live preview plays the input back to you
+and shows the measured latency. It copies audio between two streams inside the app and
+loads nothing on the server, so a crash leaves nothing behind. One preview runs at a time.
 
-Which codecs appear depends on two things: what the headset supports, and how PipeWire
-was built. AAC, LDAC and aptX each need an optional library at build time, and some
-distros package them separately. If a codec is missing, check your PipeWire package
-first. The app can only list what the server offers.
-
-### Live preview
-
-The headphone button on an input device plays that input back to you. It copies audio
-between two streams inside the app and loads nothing on the server, so a crash leaves
-nothing behind. One preview runs at a time.
-
-The latency next to the toggle is measured. As a guide, these were measured on one
-machine: 15 to 30 ms between virtual devices, 40 to 60 ms from a USB mic to a USB headset,
-60 to 80 ms for a Bluetooth headset in HFP mode, and 200 ms or more when playing to A2DP.
-A2DP's own buffering cannot be reduced from here.
-
-A Bluetooth mic needs the headset (HSP/HFP) profile. In A2DP mode the app offers a
-one-click switch and does not connect until you have switched.
-
-WirePlumber has its own policy here: about 2 seconds after the last recording stream on
-a Bluetooth mic closes, it may switch back to A2DP. This happens with any app, and can be
-changed with the `bluetooth.autoswitch-to-headset-profile` setting.
+- Typical latency on one machine: 15 to 30 ms between virtual devices, 40 to 60 ms from a
+  USB mic to a USB headset, 60 to 80 ms for a Bluetooth headset in HFP mode, and 200 ms or
+  more when playing to A2DP. A2DP's own buffering cannot be reduced from here.
+- A Bluetooth mic needs the headset (HSP/HFP) profile. In A2DP mode GenMix offers a
+  one-click switch and does not connect until you switch.
+- WirePlumber may switch a Bluetooth mic back to A2DP about 2 seconds after the last
+  recording stream closes. This happens with any app. Change it with the
+  `bluetooth.autoswitch-to-headset-profile` setting.
 
 ## How each device type is handled
 
